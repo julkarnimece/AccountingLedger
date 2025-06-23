@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AccountingLedger.Application\AccountingLedger.Application.csproj" />
+    <ProjectReference Include="..\AccountingLedger.Infrastructure\AccountingLedger.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
