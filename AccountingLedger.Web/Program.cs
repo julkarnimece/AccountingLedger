@@ -1,6 +1,7 @@
 using AccountingLedger.Infrastructure; 
 using AccountingLedger.Application; 
-using AccountingLedger.Infrastructure.Persistance; 
+using AccountingLedger.Infrastructure.Persistance;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,7 @@ else
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        //dbContext.Database.Migrate();
+        dbContext.Database.Migrate();   
     }
 }
 

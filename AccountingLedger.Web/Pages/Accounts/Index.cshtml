@@ -1,0 +1,59 @@
+﻿@page
+@model AccountingLedger.Web.Pages.Accounts.IndexModel
+@{
+    ViewData["Title"] = "Accounts";
+}
+
+<h2 class="text-2xl font-bold mb-4">Accounts</h2>
+
+<div class="mb-6 p-4 border rounded shadow-sm">
+    <h3 class="text-xl font-semibold mb-3">Add New Account</h3>
+    <form method="post" asp-page-handler="CreateAccount">
+        <div class="mb-3">
+            <label for="Account_Name" class="block text-gray-700 text-sm font-bold mb-2">Account Name:</label>
+            <input type="text" asp-for="Account.Name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="Account.Name" class="text-red-500 text-xs italic"></span>
+        </div>
+        <div class="mb-3">
+            <label for="Account_Type" class="block text-gray-700 text-sm font-bold mb-2">Account Type:</label>
+            <select asp-for="Account.Type" asp-items="Html.GetEnumSelectList<AccountingLedger.Core.Enums.AccountType>()" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></select>
+            <span asp-validation-for="Account.Type" class="text-red-500 text-xs italic"></span>
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Add Account</button>
+    </form>
+</div>
+
+
+<h3 class="text-xl font-semibold mb-3">Existing Accounts</h3>
+@if (!Model.Accounts.Any())
+{
+    <p>No accounts available. Please add some.</p>
+}
+else
+{
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead>
+            <tr>
+                <th class="py-2 px-4 border-b">ID</th>
+                <th class="py-2 px-4 border-b">Name</th>
+                <th class="py-2 px-4 border-b">Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var account in Model.Accounts)
+            {
+                <tr>
+                    <td class="py-2 px-4 border-b text-center">@account.Id</td>
+                    <td class="py-2 px-4 border-b">@account.Name</td>
+                    <td class="py-2 px-4 border-b">@account.TypeString</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
