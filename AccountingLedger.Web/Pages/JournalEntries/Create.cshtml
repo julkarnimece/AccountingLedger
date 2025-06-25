@@ -1,0 +1,180 @@
+﻿@page
+@using System.Text.Json
+@model AccountingLedger.Web.Pages.JournalEntries.CreateModel
+@{
+    ViewData["Title"] = "Create Journal Entry";
+}
+
+@{
+    var serializedAccounts = JsonSerializer.Serialize(Model.Accounts.Select(a => new { a.Id, a.Name }));
+}
+
+
+<h2 class="text-2xl font-bold mb-4">Create Journal Entry</h2>
+
+<form method="post">
+    <div class="mb-4 p-4 border rounded shadow-sm">
+        <div class="mb-3">
+            <label asp-for="Command.Date" class="block text-gray-700 text-sm font-bold mb-2">Date:</label>
+            <input type="date" asp-for="Command.Date" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="Command.Date" class="text-red-500 text-xs italic"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Command.Description" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+            <input type="text" asp-for="Command.Description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <span asp-validation-for="Command.Description" class="text-red-500 text-xs italic"></span>
+        </div>
+
+        <h4 class="text-lg font-semibold mb-2">Journal Entry Lines</h4>
+        <div id="journalEntryLinesContainer">
+            @if (!Model.Command.Lines.Any()) // Ensure at least one line is always rendered on initial load
+            {
+                @Html.Partial("_JournalEntryLinePartial", new AccountingLedger.Application.Features.JournalEntries.Commands.JournalEntryLineDto(), new ViewDataDictionary(ViewData) { { "index", 0 }, { "Accounts", Model.Accounts }, { "HtmlFieldPrefix", "Command.Lines[0]" } })
+            }
+            else
+            {
+                for (int i = 0; i < Model.Command.Lines.Count; i++)
+                {
+                    @Html.Partial("_JournalEntryLinePartial", Model.Command.Lines[i], new ViewDataDictionary(ViewData) { { "index", i }, { "Accounts", Model.Accounts }, { "HtmlFieldPrefix", $"Command.Lines[{i}]" } })
+                }
+            }
+        </div>
+
+        <button type="button" id="addJournalEntryLine" class="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Add Line</button>
+
+        <div class="mt-6 p-4 border rounded bg-gray-100">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold">Total Debit:</span>
+                <span id="totalDebit" class="font-bold text-green-700">0.00</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="font-bold">Total Credit:</span>
+                <span id="totalCredit" class="font-bold text-red-700">0.00</span>
+            </div>
+            <div id="balanceStatus" class="mt-2 font-bold text-center"></div>
+        </div>
+
+        <div class="text-red-500 text-sm italic mt-4" asp-validation-summary="ModelOnly"></div>
+
+        <button type="submit" id="submitJournalEntry" class="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Create Entry</button>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var accountOptions = @Html.Raw(@serializedAccounts);
+        //var accountOptions = @Html.Raw(Json.Serialize(Model.Accounts.Select(a => new { a.Id, a.Name })));
+        var lineIndex = @(Model.Command.Lines.Count == 0 ? 0 : Model.Command.Lines.Count); // Initialize lineIndex correctly
+
+        function updateTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            document.querySelectorAll('#journalEntryLinesContainer .journal-entry-line').forEach(lineDiv => {
+                const debitInput = lineDiv.querySelector('input[name$=".Debit"]');
+                const creditInput = lineDiv.querySelector('input[name$=".Credit"]');
+
+                if (debitInput) {
+                    totalDebit += parseFloat(debitInput.value || 0);
+                }
+                if (creditInput) {
+                    totalCredit += parseFloat(creditInput.value || 0);
+                }
+            });
+
+            document.getElementById('totalDebit').textContent = totalDebit.toFixed(2);
+            document.getElementById('totalCredit').textContent = totalCredit.toFixed(2);
+
+            const balanceStatus = document.getElementById('balanceStatus');
+            const submitButton = document.getElementById('submitJournalEntry');
+
+            if (totalDebit === totalCredit && totalDebit > 0) {
+                balanceStatus.textContent = "Entry is Balanced!";
+                balanceStatus.className = "mt-2 font-bold text-center text-green-600";
+                submitButton.disabled = false;
+            } else if (totalDebit === 0 && totalCredit === 0 && document.querySelectorAll('#journalEntryLinesContainer .journal-entry-line').length > 0) {
+                 balanceStatus.textContent = "Entry is not yet balanced (empty lines).";
+                 balanceStatus.className = "mt-2 font-bold text-center text-yellow-600";
+                 submitButton.disabled = true;
+            }
+            else {
+                balanceStatus.textContent = "Entry is NOT Balanced!";
+                balanceStatus.className = "mt-2 font-bold text-center text-red-600";
+                submitButton.disabled = true;
+            }
+        }
+
+        document.getElementById('addJournalEntryLine').addEventListener('click', function () {
+             const container = document.getElementById('journalEntryLinesContainer');
+             const newIndex = lineIndex++;
+             const newDiv = document.createElement('div');
+             newDiv.className = 'journal-entry-line mb-4 p-3 border rounded border-gray-200';
+
+             // IMPORTANT: Construct the name attribute correctly for dynamic binding
+             newDiv.innerHTML = `
+                 <div class="mb-2">
+                     <label class="block text-gray-700 text-sm font-bold mb-1">Account:</label>
+                     <select id="Command_Lines_${newIndex}__AccountId" name="Command.Lines[${newIndex}].AccountId" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                         <option value="">Select Account</option>
+                         ${accountOptions.map(acc => `<option value="${acc.Id}">${acc.Name}</option>`).join('')}
+                     </select>
+                     <span data-valmsg-for="Command.Lines[${newIndex}].AccountId" class="text-red-500 text-xs italic"></span>
+                 </div>
+                 <div class="mb-2">
+                     <label class="block text-gray-700 text-sm font-bold mb-1">Debit:</label>
+                     <input type="number" step="0.01" id="Command_Lines_${newIndex}__Debit" name="Command.Lines[${newIndex}].Debit" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" />
+                     <span data-valmsg-for="Command.Lines[${newIndex}].Debit" class="text-red-500 text-xs italic"></span>
+                 </div>
+                 <div class="mb-2">
+                     <label class="block text-gray-700 text-sm font-bold mb-1">Credit:</label>
+                     <input type="number" step="0.01" id="Command_Lines_${newIndex}__Credit" name="Command.Lines[${newIndex}].Credit" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="0" />
+                     <span data-valmsg-for="Command.Lines[${newIndex}].Credit" class="text-red-500 text-xs italic"></span>
+                 </div>
+                 <button type="button" class="remove-line bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs mt-2">Remove</button>
+             `;
+             container.appendChild(newDiv);
+             $(newDiv).find('input, select').on('change keyup', updateTotals); // Re-bind events
+             $(newDiv).find('.remove-line').on('click', function() { $(this).closest('.journal-entry-line').remove(); updateTotals(); });
+
+             // Re-parse validation for the newly added elements
+             // This is crucial if you rely on client-side validation for dynamic rows
+             $.validator.unobtrusive.parse(newDiv);
+             updateTotals(); // Recalculate totals after adding a new line
+         });
+
+         // Event delegation for dynamically added inputs
+         document.getElementById('journalEntryLinesContainer').addEventListener('change', function (event) {
+             if (event.target.name && (event.target.name.includes('.Debit') || event.target.name.includes('.Credit'))) {
+                 updateTotals();
+             }
+         });
+         document.getElementById('journalEntryLinesContainer').addEventListener('keyup', function (event) {
+             if (event.target.name && (event.target.name.includes('.Debit') || event.target.name.includes('.Credit'))) {
+                 updateTotals();
+             }
+         });
+
+         document.getElementById('journalEntryLinesContainer').addEventListener('click', function(event) {
+             if (event.target.classList.contains('remove-line')) {
+                 event.target.closest('.journal-entry-line').remove();
+                 updateTotals();
+             }
+         });
+
+
+         // Initial calculation on page load
+         $(document).ready(function() {
+             updateTotals();
+             // Bind events to existing lines (if any are pre-rendered, e.g. on validation error)
+             document.querySelectorAll('#journalEntryLinesContainer .journal-entry-line input, #journalEntryLinesContainer .journal-entry-line select').forEach(input => {
+                 input.addEventListener('change', updateTotals);
+                 input.addEventListener('keyup', updateTotals);
+             });
+              document.querySelectorAll('#journalEntryLinesContainer .remove-line').forEach(button => {
+                 button.addEventListener('click', function() { $(this).closest('.journal-entry-line').remove(); updateTotals(); });
+             });
+         });
+    </script>
+    }

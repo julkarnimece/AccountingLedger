@@ -1,0 +1,41 @@
+﻿@model AccountingLedger.Application.Features.JournalEntries.Commands.JournalEntryLineDto
+@{
+    var index = ViewData["index"] as int? ?? 0;
+    var accounts = (List<AccountingLedger.Application.DTOs.AccountDto>)ViewData["Accounts"]!;
+    var htmlFieldPrefix = ViewData.ContainsKey("HtmlFieldPrefix") ? ViewData["HtmlFieldPrefix"]?.ToString() : $"Command.Lines[{index}]";
+}
+
+<div class="journal-entry-line mb-4 p-3 border rounded border-gray-200">
+    <div class="mb-2">
+        <label for="@(htmlFieldPrefix)__AccountId" class="block text-gray-700 text-sm font-bold mb-1">Account:</label>
+        <select id="@(htmlFieldPrefix)__AccountId"
+                name="@(htmlFieldPrefix).AccountId"
+                class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            <option value="">Select Account</option>
+            @foreach (var account in accounts)
+            {
+                <option value="@account.Id" selected="@(Model.AccountId == account.Id)">@account.Name</option>
+            }
+        </select>
+        <span data-valmsg-for="@(htmlFieldPrefix).AccountId" class="text-red-500 text-xs italic"></span>
+    </div>
+    <div class="mb-2">
+        <label for="@(htmlFieldPrefix)__Debit" class="block text-gray-700 text-sm font-bold mb-1">Debit:</label>
+        <input type="number" step="0.01"
+               id="@(htmlFieldPrefix)__Debit"
+               name="@(htmlFieldPrefix).Debit"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               value="@Model.Debit.ToString("F2")" />
+        <span data-valmsg-for="@(htmlFieldPrefix).Debit" class="text-red-500 text-xs italic"></span>
+    </div>
+    <div class="mb-2">
+        <label for="@(htmlFieldPrefix)__Credit" class="block text-gray-700 text-sm font-bold mb-1">Credit:</label>
+        <input type="number" step="0.01"
+               id="@(htmlFieldPrefix)__Credit"
+               name="@(htmlFieldPrefix).Credit"
+               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+               value="@Model.Credit.ToString("F2")" />
+        <span data-valmsg-for="@(htmlFieldPrefix).Credit" class="text-red-500 text-xs italic"></span>
+    </div>
+    <button type="button" class="remove-line bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs mt-2">Remove</button>
+</div>
