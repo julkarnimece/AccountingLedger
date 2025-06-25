@@ -1,0 +1,55 @@
+﻿@page
+@model AccountingLedger.Web.Pages.TrialBalance.IndexModel
+@{
+    ViewData["Title"] = "Trial Balance";
+}
+
+<h2 class="h4 fw-bold mb-4">Trial Balance</h2>
+
+@if (!Model.TrialBalanceEntries.Any())
+{
+    <p class="text-muted">No trial balance data available. Ensure you have accounts and journal entries.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th class="text-end">Debit Balance</th>
+                <th class="text-end">Credit Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in Model.TrialBalanceEntries)
+            {
+                <tr>
+                    <td>@entry.AccountName</td>
+                    <td>@entry.AccountType.ToString()</td>
+                    <td class="text-end">@entry.DebitBalance.ToString("N2")</td>
+                    <td class="text-end">@entry.CreditBalance.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="fw-bold">
+            <tr class="table-secondary">
+                <td colspan="2" class="text-end">Total:</td>
+                <td class="text-end">@Model.TrialBalanceEntries.Sum(e => e.DebitBalance).ToString("N2")</td>
+                <td class="text-end">@Model.TrialBalanceEntries.Sum(e => e.CreditBalance).ToString("N2")</td>
+            </tr>
+            <tr class="table-secondary">
+                <td colspan="4" class="text-center">
+                    @if (Model.TrialBalanceEntries.Sum(e => e.DebitBalance) == Model.TrialBalanceEntries.Sum(e => e.CreditBalance))
+                    {
+                        <span class="text-success">Trial Balance is Balanced!</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Trial Balance is NOT Balanced!</span>
+                    }
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}

@@ -4,27 +4,29 @@
     ViewData["Title"] = "Journal Entries";
 }
 
-<h2 class="text-2xl font-bold mb-4">Journal Entries</h2>
+<h2 class="h4 fw-bold mb-4">Journal Entries</h2>
 
-<div class="mb-6 p-4 border rounded shadow-sm">
-    <h3 class="text-xl font-semibold mb-3">Filter Journal Entries</h3>
+<div class="mb-4 p-4 border rounded bg-light">
+    <h3 class="h5 fw-semibold mb-3">Filter Journal Entries</h3>
     <form method="get">
-        <div class="flex items-end space-x-4 mb-4">
-            <div class="flex-grow">
-                <label for="StartDate" class="block text-gray-700 text-sm font-bold mb-2">Start Date:</label>
-                <input type="date" asp-for="Filter.StartDate" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        <div class="row g-3 align-items-end mb-3">
+            <div class="col-md">
+                <label asp-for="Filter.StartDate" class="form-label">Start Date:</label>
+                <input type="date" asp-for="Filter.StartDate" class="form-control" />
             </div>
-            <div class="flex-grow">
-                <label for="EndDate" class="block text-gray-700 text-sm font-bold mb-2">End Date:</label>
-                <input type="date" asp-for="Filter.EndDate" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <div class="col-md">
+                <label asp-for="Filter.EndDate" class="form-label">End Date:</label>
+                <input type="date" asp-for="Filter.EndDate" class="form-control" />
             </div>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Apply Filter</button>
-            <a asp-page="/JournalEntries/Index" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Clear Filter</a>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-primary me-2">Apply Filter</button>
+                <a asp-page="/JournalEntries/Index" class="btn btn-secondary">Clear Filter</a>
+            </div>
         </div>
     </form>
 </div>
 
-<a asp-page="/JournalEntries/Create" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">Create New Journal Entry</a>
+<a asp-page="/JournalEntries/Create" class="btn btn-success mb-4">Create New Journal Entry</a>
 
 @if (!Model.JournalEntries.Any())
 {
@@ -32,37 +34,37 @@
 }
 else
 {
-    <div class="space-y-6">
+    <div class="vstack gap-4">
         @foreach (var entry in Model.JournalEntries)
         {
-            <div class="border rounded p-4 shadow-sm bg-white">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-lg font-semibold">Entry #@entry.Id - @entry.Date.ToShortDateString()</h3>
-                    <p class="text-gray-600">@entry.Description</p>
+            <div class="border rounded p-3 bg-white shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="h6 mb-0">Entry #@entry.Id - @entry.Date.ToShortDateString()</h4>
+                    <p class="text-muted mb-0">@entry.Description</p>
                 </div>
-                <table class="min-w-full text-sm border border-gray-200 mb-2">
-                    <thead>
+                <table class="table table-bordered table-sm mb-2">
+                    <thead class="table-light">
                         <tr>
-                            <th class="py-1 px-3 border-b text-left">Account</th>
-                            <th class="py-1 px-3 border-b text-right">Debit</th>
-                            <th class="py-1 px-3 border-b text-right">Credit</th>
+                            <th>Account</th>
+                            <th class="text-end">Debit</th>
+                            <th class="text-end">Credit</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var line in entry.Lines)
                         {
                             <tr>
-                                <td class="py-1 px-3 border-b">@line.AccountName</td>
-                                <td class="py-1 px-3 border-b text-right">@(line.Debit > 0 ? line.Debit.ToString("N2") : "-")</td>
-                                <td class="py-1 px-3 border-b text-right">@(line.Credit > 0 ? line.Credit.ToString("N2") : "-")</td>
+                                <td>@line.AccountName</td>
+                                <td class="text-end">@(line.Debit > 0 ? line.Debit.ToString("N2") : "-")</td>
+                                <td class="text-end">@(line.Credit > 0 ? line.Credit.ToString("N2") : "-")</td>
                             </tr>
                         }
                     </tbody>
-                    <tfoot>
-                        <tr class="font-bold bg-gray-50">
-                            <td class="py-1 px-3 border-b text-right">Total:</td>
-                            <td class="py-1 px-3 border-b text-right">@entry.TotalDebit.ToString("N2")</td>
-                            <td class="py-1 px-3 border-b text-right">@entry.TotalCredit.ToString("N2")</td>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td class="text-end">Total:</td>
+                            <td class="text-end">@entry.TotalDebit.ToString("N2")</td>
+                            <td class="text-end">@entry.TotalCredit.ToString("N2")</td>
                         </tr>
                     </tfoot>
                 </table>

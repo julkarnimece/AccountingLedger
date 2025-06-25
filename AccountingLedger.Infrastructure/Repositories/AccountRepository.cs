@@ -28,7 +28,7 @@ namespace AccountingLedger.Infrastructure.Repositories
         public async Task<IEnumerable<Account>> GetAllAsync()
         {
             return await _context.Accounts
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.Id)
                 .ToListAsync();
         }
 

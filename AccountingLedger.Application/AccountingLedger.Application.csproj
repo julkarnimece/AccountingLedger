@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AccountingLedger.Core\AccountingLedger.Core.csproj" />
+    <ProjectReference Include="..\AccountingLedger.Infrastructure\AccountingLedger.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

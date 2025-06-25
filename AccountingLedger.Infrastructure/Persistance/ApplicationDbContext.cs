@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AccountingLedger.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace AccountingLedger.Infrastructure.Persistance
 {
     public class ApplicationDbContext : DbContext
@@ -17,6 +18,8 @@ namespace AccountingLedger.Infrastructure.Persistance
         public DbSet<Account> Accounts { get; set; }
         public DbSet<JournalEntry> JournalEntries { get; set; } 
         public DbSet<JournalEntryLine> JournalEntryLines { get; set; }
+
+        public DbSet<TrialBalanceRawResult> TrialBalanceRawResults { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,6 +45,8 @@ namespace AccountingLedger.Infrastructure.Persistance
             modelBuilder.Entity<JournalEntryLine>()
                 .Property(jel => jel.Credit)
                 .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<TrialBalanceRawResult>().HasNoKey();
 
         }
 
