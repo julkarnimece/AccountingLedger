@@ -1,4 +1,4 @@
-Project Overview
+
 The Accounting Ledger System provides fundamental accounting functionalities, allowing users to interact through a user-friendly web interface. It adheres to Clean Architecture principles for maintainability, scalability, and separation of concerns.
 
 Stack
