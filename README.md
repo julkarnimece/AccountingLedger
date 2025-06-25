@@ -175,3 +175,10 @@ From the AccountingLedger.Web directory:
 dotnet run
 
 The application should start, and you'll see a URL (e.g., http://localhost:5296/). Open this URL in your browser.
+
+
+<img width="906" alt="AccountsPage" src="https://github.com/user-attachments/assets/4236391f-77cf-4ebb-b1b4-f7007a9a268c" />
+<img width="506" alt="CreateJournalEntryPage" src="https://github.com/user-attachments/assets/92c72a96-67a0-495e-86ff-5e5fa4cfd60d" />
+<img width="850" alt="TrialBalancePage" src="https://github.com/user-attachments/assets/ab750f7c-ac12-4208-81f0-057709560106" />
+<img width="689" alt="ViewJournalEntries" src="https://github.com/user-attachments/assets/22c032ac-6d39-4c5e-9f95-e6b15f072287" />
+<img width="679" alt="ViewJournalEntriesPage" src="https://github.com/user-attachments/assets/88183e44-45a2-42c8-80c8-ec7d82ea20f2" />
